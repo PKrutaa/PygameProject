@@ -51,10 +51,11 @@ def homepage():
 
     rodando = True
     while rodando:
+        screen.fill((0,0,0))
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
         # Desenhar botões e capturar retorno de ações
-        result = draw_button("Start", screen_width // 2 - 80, screen_height-800 , 150, 50, (66, 133, 244), action=startPage) #AQUI JOÃO
+        result = draw_button("Start", screen_width // 2 - 80, screen_height-800 , 150, 50, (66, 133, 244), action=interPage) #AQUI JOÃO
         if result is not None:
             print(f"Transição para: {result}")  # Verifica qual valor foi retornado
             return result  # Se houver um valor retornado, ele será a nova tela a ser exibida
@@ -72,7 +73,8 @@ def homepage():
         pygame.display.update()  # Atualizar a tela
 
 # Função da tela de jogo (startPage)
-def startPage():
+def startPage(linhas):
+
     # Carregar a imagem de fundo
     background_image = pygame.image.load(r'Imagens\wallpaper.jpg')
     background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
@@ -81,12 +83,12 @@ def startPage():
     img_buraco = pygame.image.load(r'Imagens\buraco.png')
     img_tesouro = pygame.image.load(r'Imagens\tesouro.png')
 
+
     pontuacao_jogador1 = 0
     pontuacao_jogador2 = 0
     count_jogadas = 0
 
     # Obter o número de linhas do usuário
-    linhas = int(input("Digite o número de linhas: "))
 
     # Calcular o lado da célula
     lado_celula = min(screen_width, screen_height) // linhas
@@ -96,7 +98,7 @@ def startPage():
     img_tesouro = pygame.transform.scale(img_tesouro, (lado_celula, lado_celula))
 
     # Chama a função do geracao_mapa para construir a matriz do jogo
-    matriz_laco = gm_mapa.geracao_matriz(linhas)  # Certifique-se que `gm_mapa` é importado corretamente
+    matriz_laco = gm_mapa.geracao_matriz(linhas)  
 
     # Lógica de abrir células a partir de uma matriz False
     celulas_abertas = [[False] * linhas for _ in range(linhas)]
@@ -109,6 +111,7 @@ def startPage():
     x_offset = (screen_width - (linhas * lado_celula)) // 2
     y_offset = (screen_height - (linhas * lado_celula)) // 2
 
+    # Loop da parte visual do jogo
     rodando = True
     while rodando:
         for evento in pygame.event.get():
@@ -144,7 +147,7 @@ def startPage():
                             pontuacao_jogador2 += 100
 
         # Redesenhar a tela a cada iteração
-        screen.blit(background_image, (0, 0))  # Redesenhar o fundo
+        screen.blit(background_image, (0, 0))  
 
         for i in range(linhas):
             for j in range(linhas):
@@ -154,8 +157,10 @@ def startPage():
                 if celulas_abertas[i][j]:
                     if matriz_laco[i][j] == "B":
                         screen.blit(img_buraco, (x, y))
+
                     elif matriz_laco[i][j] == "T":
                         screen.blit(img_tesouro, (x, y))
+
                     else:
                         # Renderiza o número com fundo transparente
                         text_surface = font.render(str(matriz_laco[i][j]), True, (0, 0, 0))
@@ -166,10 +171,10 @@ def startPage():
                 pygame.draw.rect(screen, (0, 0, 0), (x, y, lado_celula, lado_celula), 2)
 
         # Exibir a pontuação na tela (canto superior esquerdo)
-        score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador1}', True, (255, 255, 255))
+        score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, (255, 255, 255))
         screen.blit(score_surface1, (50, 50))
 
-        score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador2}', True, (255, 255, 255))
+        score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, (255, 255, 255))
         screen.blit(score_surface2, (50, 100))
 
         # Verificar se todas as células foram abertas
@@ -185,16 +190,22 @@ def startPage():
             elif pontuacao_jogador1 < pontuacao_jogador2:
                 mensagem = "Jogador 2 Ganhou!"
                 pygame.mixer.init()
-                pygame.mixer.music.load(r"Musicas\vitora.wav")
+                pygame.mixer.music.load(r"Musicas\vitoria.wav")
                 pygame.mixer.music.play(0)
+
             else:
                 mensagem = "Empate!"
+                pygame.mixer.init()
+                pygame.mixer.music.load(r"Musicas\angra.wav")
+                pygame.mixer.music.play(0)
 
             # Mostrar mensagem de fim de jogo
             screen.fill((0, 0, 0))  # Preencher a tela com preto
             mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
             mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
-            screen.blit(mensagem_surface, mensagem_rect)
+            jogar_novamente = draw_button("Jogar novamente", screen_width // 2, (screen_height//2) - 50, 150, 50, (66, 133, 244), action=interPage)
+
+            screen.blit(mensagem_surface, mensagem_rect,jogar_novamente)
             pygame.display.update()
 
             # Esperar por um evento de fechamento ou clique para sair
@@ -215,99 +226,61 @@ def startPage():
 
 # Função para criar uma caixa de entrada de texto
 def draw_input_box(x, y, width, height, text):
-    pygame.draw.rect(screen, (200, 200, 200), (x, y, width, height), 0, border_radius=5)  # Caixa de entrada
+    # Certifique-se de que o texto é uma string
+    if not isinstance(text, str):
+        text = str(text)  # Converte para string se necessário
+    # Desenhar a caixa de entrada
+    pygame.draw.rect(screen, (200, 200, 200), (x, y, width, height), 0, border_radius=5)
+    # Renderizar o texto usando a fonte
     text_surface = font.render(text, True, (0, 0, 0))
-    screen.blit(text_surface, (x + 5, y + 5))  # Desenha o texto na caixa
+    # Exibir o texto na caixa de entrada
+    screen.blit(text_surface, (x + 5, y + 5))  # Texto com um espaçamento de 5 pixels das bordas
+    # Atualizar a tela para refletir as mudanças
+    pygame.display.update()
 
-#função da tela intermediária
-def interPage():              # AVISO PARA JOÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂOOOOOOOOOO
-                              # SE QUISER QUE O BOTÃO START VÁ PARA A SUA PÁGINA, É SO ALTERAR O ACTION DA LINHA 57 PARA action=interpage 
-    img_buraco = pygame.image.load(r'Imagens\buraco.png')
-    img_tesouro = pygame.image.load(r'Imagens\tesouro.png')
+# Função da tela intermediária (interPage)
+def interPage():
+    font = pygame.font.SysFont("JetBrains-Mono", 20)
 
-    linhas = 4
-    lado_celula = 50
+    linhas = "4"  # Inicializar 'linhas' como string
 
-    pygame.mixer.init()
-    pygame.mixer.music.load(r"Musicas\main_song.mp3")
-    pygame.mixer.music.play(-1)
-    matriz_laco = gm_mapa.geracao_matriz(4)
 
     # Carregar a imagem de fundo
     background_image = pygame.image.load(r'Imagens\wallpaper.jpg')
     background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
-# Inicializa as variáveis para as quantidades
-    quantidade_celulas = ""
-    quantidade_tesouros = ""
-    quantidade_buracos = ""
+    # Iniciar o mixer e tocar música
+    pygame.mixer.init()
+    pygame.mixer.music.load(r"Musicas\song1.wav")
+    pygame.mixer.music.play(-1)
 
- # Desenhar os botões
-    if draw_button("Voltar para a tela inicial", screen_width//2 - 150, screen_height-900 , 300, 50, (66, 133, 244), action=quit_game):
-        return  # Retorna à tela inicial
-    if draw_button("Iniciar jogo", screen_width//2 - 150, screen_height-700 , 300, 50, (66, 133, 244), action=startPage):
-        return  # Começa o jogo
-
-    draw_input_box(screen_width//2 - 75, screen_height-550, 150, 50, quantidade_celulas)  # Caixa para células
-    draw_button("Quantidade de células", screen_width//2 - 150, screen_height-600, 300, 50, (66, 133, 244), action=lambda: None)  # Botão para células
-
-    draw_input_box(screen_width//2 - 75, screen_height-350, 150, 50, quantidade_tesouros)  # Caixa para tesouros
-    draw_button("Quantidade de tesouros",screen_width//2 - 150, screen_height-400 , 300, 50, (66, 133, 244), action=lambda: None)  # Botão para tesouros
-
-    draw_input_box(screen_width//2 - 75, screen_height-150, 150, 50, quantidade_buracos)  # Caixa para buracos
-    draw_button("Quantidade de buracos", screen_width//2 - 150, screen_height-200, 300, 50, (66, 133, 244), action=lambda: None)  # Botão para buracos
-
-
-     # Gerenciar eventos
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            quit_game()
-        if evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_ESCAPE:
-                quit_game()
-            # Captura o texto digitado na caixa de entrada
-            if evento.key == pygame.K_RETURN:
-                # Aqui você pode processar as quantidades digitadas
-                print(f"Células: {quantidade_celulas}, Tesouros: {quantidade_tesouros}, Buracos: {quantidade_buracos}")
-
-            if evento.key in (pygame.K_BACKSPACE, pygame.K_DELETE):
-                # Para deletar caracteres
-                if quantidade_celulas:
-                    quantidade_celulas = quantidade_celulas[:-1]
-                if quantidade_tesouros:
-                    quantidade_tesouros = quantidade_tesouros[:-1]
-                if quantidade_buracos:
-                    quantidade_buracos = quantidade_buracos[:-1]
-            else:
-                # Adiciona a letra digitada na caixa de entrada
-                if evento.unicode.isnumeric():  # Aceitar apenas números
-                    if quantidade_celulas == '':
-                        quantidade_celulas += evento.unicode
-                    elif quantidade_tesouros == '':
-                        quantidade_tesouros += evento.unicode
-                    elif quantidade_buracos == '':
-                        quantidade_buracos += evento.unicode
-
-        pygame.display.update()  # Atualiza a tela    
     
-    
-
 
     rodando = True
     while rodando:
+        screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
+
+        draw_button("Iniciar jogo", screen_width // 2, screen_height, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
+        texto = font.render("Digite a quantidade de linhas para o tabuleiro!",True, (255,255,255))
+        screen.blit(texto, (screen_width//2, screen_height//3)) # Desenha
         
+        draw_input_box(screen_width // 2, (screen_height//3) + 50, 300, 50, str(linhas))
+
         for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                quit_game()
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_ESCAPE:
+                    homepage()
 
-            gm.laco_jogo(matriz_laco,lado_celula)
- 
-            if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-                mouse_x, mouse_y = evento.pos
-                celula_x = mouse_y // lado_celula
-                celula_y = mouse_x // lado_celula
+                # Captura o texto digitado na caixa de entrada e atribui à variável 'linhas'
+                if evento.unicode.isnumeric():  # Aceitar apenas números
+                    linhas += evento.unicode
+                if evento.key == pygame.K_BACKSPACE and len(linhas) > 0:  # Corrige o erro ao pressionar backspace
+                    linhas = linhas[:-1]  # Remover o último caractere de 'linhas'
 
-                if 0 <= celula_x < linhas and 0 <= celula_y < linhas:
-                    celulas_abertas[celula_x][celula_y] = True  
+                # Se pressionar Enter, imprime o valor de 'linhas'
+                if evento.key == pygame.K_RETURN:
+                    print(f"Linhas: {linhas}")
 
-            pygame.display.update()# Retorna à tela inicial se ESC for pressionado
-
-        pygame.display.update()
+        pygame.display.update()  # Atualizar a tela
