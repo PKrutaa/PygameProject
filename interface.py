@@ -22,11 +22,14 @@ def quit_game():
 def draw_button(text, x, y, width, height, inactive_color, action=None):
     mouse = pygame.mouse.get_pos()  # Posição do mouse
     click = pygame.mouse.get_pressed()  # Estado de clique do mouse
+    som = pygame.mixer.Sound("Musicas/som_botao.wav")
 
     # Verificar se o mouse está sobre o botão
     if x < mouse[0] < x + width and y < mouse[1] < y + height:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height), 0, border_radius=10)  # Desenha retângulo cheio
+
         if click[0] == 1 and action is not None:  # Se o botão esquerdo for clicado
+            som.play()
             print(f"Botão {text} clicado!")  # Exibir no console para confirmar o clique
             action()  # Chama a ação, não precisa de "return" aqui
     else:
