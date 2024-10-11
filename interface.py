@@ -46,8 +46,10 @@ def homepage():
     pygame.mixer.music.play(-1)
 
     # Carregar a imagem de fundo
+
     background_image = pygame.image.load(r'Imagens\wallpaper.jpg')
     background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 
     rodando = True
     while rodando:
@@ -176,53 +178,55 @@ def startPage(linhas):
 
         score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, (255, 255, 255))
         screen.blit(score_surface2, (50, 100))
-
+        pygame.display.update()
         # Verificar se todas as células foram abertas
         todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
 
         if todas_celulas_abertas:
-            # Determinar o vencedor
-            if pontuacao_jogador1 > pontuacao_jogador2:
-                mensagem = "Jogador 1 Ganhou!"
-                pygame.mixer.init()
-                pygame.mixer.music.load(r"Musicas\vitoria.wav")
-                pygame.mixer.music.play(0)
-            elif pontuacao_jogador1 < pontuacao_jogador2:
-                mensagem = "Jogador 2 Ganhou!"
-                pygame.mixer.init()
-                pygame.mixer.music.load(r"Musicas\vitoria.wav")
-                pygame.mixer.music.play(0)
-
-            else:
-                mensagem = "Empate!"
-                pygame.mixer.init()
-                pygame.mixer.music.load(r"Musicas\angra.wav")
-                pygame.mixer.music.play(0)
-
-            # Mostrar mensagem de fim de jogo
-            screen.fill((0, 0, 0))  # Preencher a tela com preto
-            mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
-            mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
-            jogar_novamente = draw_button("Jogar novamente", screen_width // 2, (screen_height//2) - 50, 150, 50, (66, 133, 244), action=interPage)
-
-            screen.blit(mensagem_surface, mensagem_rect,jogar_novamente)
-            pygame.display.update()
-
-            # Esperar por um evento de fechamento ou clique para sair
-            esperando = True
-            while esperando:
-                for evento in pygame.event.get():
-                    if evento.type == pygame.QUIT or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
-                        rodando = False
-                        esperando = False
-
-        pygame.display.update()
+            final(pontuacao_jogador1,pontuacao_jogador2,font_final)
+            
+    pygame.display.update()
 
     pygame.quit()
 
 
 
+def final(pontuacao_jogador1,pontuacao_jogador2,font_final):
+# Determinar o vencedor
+    if pontuacao_jogador1 > pontuacao_jogador2:
+        mensagem = "Jogador 1 Ganhou!"
+        pygame.mixer.init()
+        pygame.mixer.music.load(r"Musicas\vitoria.wav")
+        pygame.mixer.music.play(0)
+    elif pontuacao_jogador1 < pontuacao_jogador2:
+        mensagem = "Jogador 2 Ganhou!"
+        pygame.mixer.init()
+        pygame.mixer.music.load(r"Musicas\vitoria.wav")
+        pygame.mixer.music.play(0)
 
+    else:
+        mensagem = "Empate!"
+        pygame.mixer.init()
+        pygame.mixer.music.load(r"Musicas\angra.wav")
+        pygame.mixer.music.play(0)
+
+    # Mostrar mensagem de fim de jogo
+    screen.fill((0, 0, 0))  # Preencher a tela com preto
+    mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
+    mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
+    jogar_novamente = draw_button("Jogar novamente", screen_width // 2, (screen_height*2//3) , 150, 50, (66, 133, 244), action=homepage)
+    screen.blit(mensagem_surface, mensagem_rect,jogar_novamente,)
+    pygame.display.update()
+
+    # Esperar por um evento de fechamento ou clique para sair
+    esperando = True
+    while esperando:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
+                rodando = False
+                esperando = False
+
+    pygame.display.update()
 
 # Função para criar uma caixa de entrada de texto
 def draw_input_box(x, y, width, height, text):
@@ -250,9 +254,7 @@ def interPage():
     background_image = pygame.transform.scale(background_image, (screen_width, screen_height))
 
     # Iniciar o mixer e tocar música
-    pygame.mixer.init()
-    pygame.mixer.music.load(r"Musicas\song1.wav")
-    pygame.mixer.music.play(-1)
+
 
     
 
@@ -260,11 +262,11 @@ def interPage():
     while rodando:
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
-        draw_button("Iniciar jogo", screen_width // 2, screen_height, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
+        draw_button("Iniciar jogo", screen_width //2, screen_height*2//3, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
         texto = font.render("Digite a quantidade de linhas para o tabuleiro!",True, (255,255,255))
-        screen.blit(texto, (screen_width//2, screen_height//3)) # Desenha
+        screen.blit(texto, (screen_width//2, (screen_height//2))) # Desenha
         
-        draw_input_box(screen_width // 2, (screen_height//3) + 50, 300, 50, str(linhas))
+        draw_input_box(screen_width // 2, (screen_height//3), 300, 50, str(linhas))
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
