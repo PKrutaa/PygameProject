@@ -55,7 +55,7 @@ def homepage():
     while rodando:
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
-        # Desenhar botões e capturar retorno de ações
+        # Desenhar botões e capturar retorno de ações                                                             #o que interpage faz?
         result = draw_button("Start", screen_width // 2 - 80, screen_height-800 , 150, 50, (66, 133, 244), action=interPage) #AQUI JOÃO
         if result is not None:
             print(f"Transição para: {result}")  # Verifica qual valor foi retornado
@@ -110,10 +110,14 @@ def startPage(linhas):
 
     rodando = True
     while rodando:
+        #com essa variável sendo criada aqui, ele vai passar 1 veze pelo for antes de ir pra tela final
+        #tornando possível os jogadores verem o conteúdo da última célula
+        todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
         for evento in pygame.event.get():
+           
             if evento.type == pygame.QUIT:
                 rodando = False
-
+            
             if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 mouse_x, mouse_y = evento.pos
                 
@@ -172,9 +176,12 @@ def startPage(linhas):
         screen.blit(score_surface2, (50, 100))
 
         # Verificar se todas as células foram abertas
-        todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
+        
 
         if todas_celulas_abertas:
+
+            #3 segundos antes de exibir a tela final
+            pygame.time.wait(3000)
             # Determinar o vencedor
             if pontuacao_jogador1 > pontuacao_jogador2:
                 mensagem = "Jogador 1 Ganhou!"
@@ -184,7 +191,7 @@ def startPage(linhas):
             elif pontuacao_jogador1 < pontuacao_jogador2:
                 mensagem = "Jogador 2 Ganhou!"
                 pygame.mixer.init()
-                pygame.mixer.music.load(r"Musicas\vitora.wav")
+                pygame.mixer.music.load(r"Musicas\vitoria.wav")
                 pygame.mixer.music.play(0)
             else:
                 mensagem = "Empate!"
@@ -195,7 +202,7 @@ def startPage(linhas):
             mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
             screen.blit(mensagem_surface, mensagem_rect)
             pygame.display.update()
-
+            
             # Esperar por um evento de fechamento ou clique para sair
             esperando = True
             while esperando:
