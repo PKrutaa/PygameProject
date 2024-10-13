@@ -2,6 +2,9 @@ import pygame
 import sys
 import game_loop as gm
 import geracao_mapa as gm_mapa
+import cores
+
+pygame.font.init()
 
 pygame.init()
 
@@ -9,8 +12,8 @@ pygame.init()
 info = pygame.display.Info()
 screen_width, screen_height = info.current_w, info.current_h
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
-font = pygame.font.SysFont("JetBrains-Mono", 30)
-BRANCO = (255, 255, 255)
+font = pygame.font.SysFont("JetBrains-Mono", 50)
+
 
 # Função para sair do jogo
 def quit_game():
@@ -28,13 +31,15 @@ def draw_button(text, x, y, width, height, inactive_color, action=None):
     if x < mouse[0] < x + width and y < mouse[1] < y + height:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height), 0, border_radius=10)  # Desenha retângulo cheio
         if click[0] == 1 and action is not None:  # Se o botão esquerdo for clicado
+            som_botao = pygame.mixer.Sound('Musicas/som_botao.wav')
+            som_botao.play()
             print(f"Botão {text} clicado!")  # Exibir no console para confirmar o clique
             return action()  # Retorna o valor da função 'action'
     else:
         pygame.draw.rect(screen, inactive_color, (x, y, width, height), 1, border_radius=10)  # Desenha borda do retângulo
 
     # Desenhar o texto no botão
-    text_surf = font.render(text, True, BRANCO)
+    text_surf = font.render(text, True, cores.AMARELO)
     text_rect = text_surf.get_rect(center=(x + width // 2, y + height // 2))
     screen.blit(text_surf, text_rect)
 
@@ -105,7 +110,8 @@ def startPage(linhas):
     # Lógica de abrir células a partir de uma matriz False
     celulas_abertas = [[False] * linhas for _ in range(linhas)]
 
-    # Define a fonte para a pontuação e mensagem final
+    # Define a fonte para a pontuação,numero de tesouros e mensagem final
+    font_ntesouros = pygame.font.SysFont('JetBrains-Mono', 70)
     font = pygame.font.SysFont('JetBrains-Mono', 36)
     font_final = pygame.font.SysFont('JetBrains-Mono', 72)  # Fonte maior para mensagem final
 
@@ -165,7 +171,7 @@ def startPage(linhas):
 
                     else:
                         # Renderiza o número com fundo transparente
-                        text_surface = font.render(str(matriz_laco[i][j]), True, (0, 0, 0))
+                        text_surface = font_ntesouros.render(str(matriz_laco[i][j]), True, cores.AMARELO)
                         text_rect = text_surface.get_rect(center=(x + lado_celula // 2, y + lado_celula // 2))
                         screen.blit(text_surface, text_rect)  # Coloca o texto na tela
 
@@ -173,11 +179,11 @@ def startPage(linhas):
                 pygame.draw.rect(screen, (0, 0, 0), (x, y, lado_celula, lado_celula), 2)
 
         # Exibir a pontuação na tela (canto superior esquerdo)
-        score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, (255, 255, 255))
+        score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, cores.AMARELO)
         screen.blit(score_surface1, (50, 50))
 
-        score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, (255, 255, 255))
-        screen.blit(score_surface2, (50, 100))
+        score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, cores.AMARELO)
+        screen.blit(score_surface2, (1150, 50))
         pygame.display.update()
         # Verificar se todas as células foram abertas
         todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
@@ -191,8 +197,12 @@ def startPage(linhas):
 
 
 
-def final(pontuacao_jogador1,pontuacao_jogador2,font_final):
-# Determinar o vencedor
+def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
+    # Carregar o background
+    background_final = pygame.image.load(r'Imagens\background_final.jpg')
+    background_final = pygame.transform.scale(background_final, (screen_width, screen_height))
+
+    # Determinar o vencedor
     if pontuacao_jogador1 > pontuacao_jogador2:
         mensagem = "Jogador 1 Ganhou!"
         pygame.mixer.init()
@@ -203,31 +213,33 @@ def final(pontuacao_jogador1,pontuacao_jogador2,font_final):
         pygame.mixer.init()
         pygame.mixer.music.load(r"Musicas\vitoria.wav")
         pygame.mixer.music.play(0)
-
     else:
         mensagem = "Empate!"
         pygame.mixer.init()
         pygame.mixer.music.load(r"Musicas\angra.wav")
         pygame.mixer.music.play(0)
 
-    # Mostrar mensagem de fim de jogo
-    screen.fill((0, 0, 0))  # Preencher a tela com preto
+    # Mostrar o background e a mensagem de fim de jogo
+    screen.blit(background_final, (0, 0))  # Exibir o background antes de qualquer outra coisa
+
+    # Renderizar a mensagem de fim de jogo
     mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
     mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
-    jogar_novamente = draw_button("Jogar novamente", screen_width // 2-100, (screen_height*2//3) , 200, 50, (66, 133, 244), action=homepage)
-    screen.blit(mensagem_surface, mensagem_rect,jogar_novamente,)
-    pygame.display.update()
+    screen.blit(mensagem_surface, mensagem_rect)
 
+    # Desenhar o botão "Jogar novamente"
+    draw_button("Jogar novamente", screen_width // 2 - 100, (screen_height * 2 // 3) , 200, 100, (66, 133, 244), action=homepage)
+    pygame.display.update()  # Atualizar a tela para mostrar background, mensagem e botão
+
+    #desenhar o botão "quit"
+    draw_button("QUIT", screen_width // 2 - 100, (screen_height * 1 // 3) , 100, 50, cores.AMARELO , action=quit_game)
     # Esperar por um evento de fechamento ou clique para sair
     esperando = True
     while esperando:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
-                rodando = False
                 esperando = False
         pygame.display.update()
-
-    pygame.display.update()
 
 # Função para criar uma caixa de entrada de texto
 def draw_input_box(x, y, width, height, text):
@@ -246,7 +258,7 @@ def draw_input_box(x, y, width, height, text):
 #função para desenhar um texto com borda
 def draw_text_with_border(text, font, text_color, border_color, pos):
     # Renderizar a borda (desenhando o texto várias vezes ao redor do centro)
-    font = pygame.font.SysFont("JetBrains-Mono", 40,)
+    font = pygame.font.SysFont("JetBrains-Mono", 40)
     text_surface = font.render(text, True, border_color)
     for offset in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
         screen.blit(text_surface, (pos[0] + offset[0], pos[1] + offset[1]))
