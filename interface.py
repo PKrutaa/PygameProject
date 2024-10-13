@@ -214,7 +214,7 @@ def final(pontuacao_jogador1,pontuacao_jogador2,font_final):
     screen.fill((0, 0, 0))  # Preencher a tela com preto
     mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
     mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
-    jogar_novamente = draw_button("Jogar novamente", screen_width // 2, (screen_height*2//3) , 150, 50, (66, 133, 244), action=homepage)
+    jogar_novamente = draw_button("Jogar novamente", screen_width // 2-100, (screen_height*2//3) , 200, 50, (66, 133, 244), action=homepage)
     screen.blit(mensagem_surface, mensagem_rect,jogar_novamente,)
     pygame.display.update()
 
@@ -225,6 +225,7 @@ def final(pontuacao_jogador1,pontuacao_jogador2,font_final):
             if evento.type == pygame.QUIT or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
                 rodando = False
                 esperando = False
+        pygame.display.update()
 
     pygame.display.update()
 
@@ -242,12 +243,23 @@ def draw_input_box(x, y, width, height, text):
     # Atualizar a tela para refletir as mudanças
     pygame.display.update()
 
+#função para desenhar um texto com borda
+def draw_text_with_border(text, font, text_color, border_color, pos):
+    # Renderizar a borda (desenhando o texto várias vezes ao redor do centro)
+    font = pygame.font.SysFont("JetBrains-Mono", 40,)
+    text_surface = font.render(text, True, border_color)
+    for offset in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
+        screen.blit(text_surface, (pos[0] + offset[0], pos[1] + offset[1]))
+
+    # Renderizar o texto principal
+    text_surface = font.render(text, True, text_color)
+    screen.blit(text_surface, pos)
+
 # Função da tela intermediária (interPage)
 def interPage():
-    font = pygame.font.SysFont("JetBrains-Mono", 20)
+    font = pygame.font.SysFont("JetBrains-Mono", 40,)
 
     linhas = "4"  # Inicializar 'linhas' como string
-
 
     # Carregar a imagem de fundo
     background_image = pygame.image.load(r'Imagens\wallpaper.jpg')
@@ -255,18 +267,15 @@ def interPage():
 
     # Iniciar o mixer e tocar música
 
-
-    
-
     rodando = True
     while rodando:
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
-        draw_button("Iniciar jogo", screen_width //2, screen_height*2//3, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
-        texto = font.render("Digite a quantidade de linhas para o tabuleiro!",True, (255,255,255))
-        screen.blit(texto, (screen_width//2, (screen_height//2))) # Desenha
-        
-        draw_input_box(screen_width // 2, (screen_height//3), 300, 50, str(linhas))
+        draw_button("Iniciar jogo", (screen_width //2)-150, (screen_height*2)//3 +50, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
+        #texto = font.render("Digite a quantidade de linhas para o tabuleiro!",True, (255,255,255))
+        #screen.blit(texto, ((screen_width//2)-325, (screen_height//2-50))) # Desenha
+        draw_text_with_border("Digite a quantidade de linhas para o tabuleiro!", "JetBrains-Mono", (255,255,255), (0,0,0), ((screen_width//2)-325, (screen_height//2-50)))
+        draw_input_box((screen_width // 2)-150, (screen_height//2), 300, 50, str(linhas))
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
