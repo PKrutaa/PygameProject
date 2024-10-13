@@ -180,10 +180,10 @@ def startPage(linhas):
 
         # Exibir a pontuação na tela (canto superior esquerdo)
         score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, cores.AMARELO)
-        screen.blit(score_surface1, (50, 50))
+        screen.blit(score_surface1, (screen_width//10, screen_height//5))
 
         score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, cores.AMARELO)
-        screen.blit(score_surface2, (1150, 50))
+        screen.blit(score_surface2, (screen_width//2+(screen_width//3), screen_height//5))
         pygame.display.update()
         # Verificar se todas as células foram abertas
         todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
@@ -228,11 +228,11 @@ def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
     screen.blit(mensagem_surface, mensagem_rect)
 
     # Desenhar o botão "Jogar novamente"
-    draw_button("Jogar novamente", screen_width // 2 - 100, (screen_height * 2 // 3) , 200, 100, (66, 133, 244), action=homepage)
+    draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//3) , 300, 75, cores.AMARELO, action=homepage)
     pygame.display.update()  # Atualizar a tela para mostrar background, mensagem e botão
 
     #desenhar o botão "quit"
-    draw_button("QUIT", screen_width // 2 - 100, (screen_height * 1 // 3) , 100, 50, cores.AMARELO , action=quit_game)
+    draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.AMARELO , action=quit_game)
     # Esperar por um evento de fechamento ou clique para sair
     esperando = True
     while esperando:
