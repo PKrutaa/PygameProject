@@ -248,7 +248,7 @@ def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
         screen.blit(mensagem_surface, mensagem_rect)
 
         draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.PRETO , action=quit_game)
-        draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//4) , 300, 75, cores.PRETO, action=homepage)
+        draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//4) , 300, 75, cores.PRETO, action=interPage)
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT: #or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
                 esperando = False
