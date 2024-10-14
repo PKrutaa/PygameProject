@@ -6,11 +6,11 @@ def geracao_matriz (linhas):
 
     celula = [[None for i in range (linhas)] for j in range (linhas)]
 
-    # Atribuição de buracos 
-    n_buracos = int((linhas**2) * 0.1875)
-    n_tesouros = int((linhas**2) * 0.375)
+    n_buracos = int((linhas**2) * 0.1875) # Quantidade de buracos em função das linhas
+    n_tesouros = int((linhas**2) * 0.375) # Quantidade de tesouros em função das linhas
     
     buracos = 0
+    # Alocação aleatoria dos buracos na matriz
     while buracos < n_buracos:
         i = random.randint(0, linhas-1)
         j = random.randint(0, linhas-1)
@@ -22,7 +22,7 @@ def geracao_matriz (linhas):
             buracos += 1
 
 
-    # Criação tesouros
+    # Alocação aleatória dos tesouros na matriz
     tesouros = 0
     while tesouros < n_tesouros:
         i = random.randint(0, linhas-1)

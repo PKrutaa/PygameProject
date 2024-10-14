@@ -1,18 +1,16 @@
 import pygame
 import sys
-import game_loop as gm
 import geracao_mapa as gm_mapa
 import cores
 
 pygame.font.init()
-
 pygame.init()
 
-# Definir informações de tela e cores
-info = pygame.display.Info()
+# Coletar as informações da tela do usuário para deixar padronizado para cada tela
+info = pygame.display.Info() 
 screen_width, screen_height = info.current_w, info.current_h
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
-font = pygame.font.SysFont("JetBrains-Mono", 50)
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN) # deixa a tela fullscreen
+font = pygame.font.SysFont("JetBrains-Mono", 35) # fonte e tamanho 
 
 
 # Função para sair do jogo
@@ -28,7 +26,7 @@ def draw_button(text, x, y, width, height, inactive_color, action=None):
     click = pygame.mouse.get_pressed()  # Estado de clique do mouse
 
     # Verificar se o mouse está sobre o botão
-    if x < mouse[0] < x + width and y < mouse[1] < y + height:
+    if x < mouse[0] < x + width and y < mouse[1] < y + height: 
         pygame.draw.rect(screen, inactive_color, (x, y, width, height), 0, border_radius=10)  # Desenha retângulo cheio
         if click[0] == 1 and action is not None:  # Se o botão esquerdo for clicado
             som_botao = pygame.mixer.Sound('Musicas/som_botao.wav')
@@ -45,10 +43,6 @@ def draw_button(text, x, y, width, height, inactive_color, action=None):
 
 # Função da tela inicial (homepage)
 def homepage():
-
-    pygame.mixer.init()
-    pygame.mixer.music.load(r"Musicas\song1.wav")
-    pygame.mixer.music.play(-1)
 
     # Carregar a imagem de fundo
 
@@ -140,15 +134,18 @@ def startPage(linhas):
                     count_jogadas += 1
 
                     # Atualizar pontuação com base no conteúdo da célula
+                    # Pontuação não pode ficar negativa
                     if matriz_laco[celula_x][celula_y] == "B":
-                        # Encontrou um buraco, zera a pontuação
                         if count_jogadas % 2 == 0:
-                            pontuacao_jogador1 = 0
+                            pontuacao_jogador1 -= 50
+                            if pontuacao_jogador1 < 0:
+                                pontuacao_jogador1 = 0
                         else:
-                            pontuacao_jogador2 = 0
+                            pontuacao_jogador2 -= 50
+                            if pontuacao_jogador2 < 0:
+                                pontuacao_jogador2 = 0
 
                     elif matriz_laco[celula_x][celula_y] == "T":
-                        # Encontrou um tesouro, soma 100 pontos
                         if count_jogadas % 2 == 0:
                             pontuacao_jogador1 += 100
                         else:
@@ -157,6 +154,7 @@ def startPage(linhas):
         # Redesenhar a tela a cada iteração
         screen.blit(background_image, (0, 0))  
 
+        # Revelar as imagens/números de acordo com as interações do usuário
         for i in range(linhas):
             for j in range(linhas):
                 x = x_offset + j * lado_celula
@@ -178,14 +176,15 @@ def startPage(linhas):
                 # Desenhar o contorno do quadrado
                 pygame.draw.rect(screen, (0, 0, 0), (x, y, lado_celula, lado_celula), 2)
 
-        # Exibir a pontuação na tela (canto superior esquerdo)
+        # Exibir a pontuação na tela 
         score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, cores.AMARELO)
         screen.blit(score_surface1, (screen_width//10, screen_height//5))
 
         score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, cores.AMARELO)
         screen.blit(score_surface2, (screen_width//2+(screen_width//3), screen_height//5))
         pygame.display.update()
-        # Verificar se todas as células foram abertas
+
+        # Verificar se todas as células foram abertas para finalizar o jogo
         todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
 
         if todas_celulas_abertas:
@@ -197,6 +196,7 @@ def startPage(linhas):
 
 
 
+# Tela final do jogo
 def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
     # Carregar o background
     background_final = pygame.image.load(r'Imagens\background_final.jpg')
@@ -234,6 +234,7 @@ def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
     #desenhar o botão "quit"
     draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.AMARELO , action=quit_game)
     # Esperar por um evento de fechamento ou clique para sair
+
     esperando = True
     while esperando:
         for evento in pygame.event.get():
@@ -241,31 +242,47 @@ def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
                 esperando = False
         pygame.display.update()
 
+
+
+
 # Função para criar uma caixa de entrada de texto
 def draw_input_box(x, y, width, height, text):
+
     # Certifique-se de que o texto é uma string
     if not isinstance(text, str):
         text = str(text)  # Converte para string se necessário
+
     # Desenhar a caixa de entrada
     pygame.draw.rect(screen, (200, 200, 200), (x, y, width, height), 0, border_radius=5)
+
     # Renderizar o texto usando a fonte
     text_surface = font.render(text, True, (0, 0, 0))
+
     # Exibir o texto na caixa de entrada
     screen.blit(text_surface, (x + 5, y + 5))  # Texto com um espaçamento de 5 pixels das bordas
+
     # Atualizar a tela para refletir as mudanças
     pygame.display.update()
+
+
+
 
 #função para desenhar um texto com borda
 def draw_text_with_border(text, font, text_color, border_color, pos):
     # Renderizar a borda (desenhando o texto várias vezes ao redor do centro)
     font = pygame.font.SysFont("JetBrains-Mono", 40)
+
     text_surface = font.render(text, True, border_color)
+
     for offset in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
         screen.blit(text_surface, (pos[0] + offset[0], pos[1] + offset[1]))
 
     # Renderizar o texto principal
     text_surface = font.render(text, True, text_color)
     screen.blit(text_surface, pos)
+
+
+
 
 # Função da tela intermediária (interPage)
 def interPage():
@@ -284,8 +301,6 @@ def interPage():
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
         draw_button("Iniciar jogo", (screen_width //2)-150, (screen_height*2)//3 +50, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
-        #texto = font.render("Digite a quantidade de linhas para o tabuleiro!",True, (255,255,255))
-        #screen.blit(texto, ((screen_width//2)-325, (screen_height//2-50))) # Desenha
         draw_text_with_border("Digite a quantidade de linhas para o tabuleiro!", "JetBrains-Mono", (255,255,255), (0,0,0), ((screen_width//2)-325, (screen_height//2-50)))
         draw_input_box((screen_width // 2)-150, (screen_height//2), 300, 50, str(linhas))
 
