@@ -6,8 +6,7 @@ def main():
 
     running = True
     pygame.mixer.init()
-    pygame.mixer.music.load(r"Musicas\song1.wav")
-    pygame.mixer.music.play(-1)
+
 
     while running:
         for event in pygame.event.get():

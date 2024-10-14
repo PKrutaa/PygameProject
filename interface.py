@@ -37,13 +37,14 @@ def draw_button(text, x, y, width, height, inactive_color, action=None):
         pygame.draw.rect(screen, inactive_color, (x, y, width, height), 1, border_radius=10)  # Desenha borda do retângulo
 
     # Desenhar o texto no botão
-    text_surf = font.render(text, True, cores.AMARELO)
+    text_surf = font.render(text, True, cores.BRANCO)
     text_rect = text_surf.get_rect(center=(x + width // 2, y + height // 2))
     screen.blit(text_surf, text_rect)
 
 # Função da tela inicial (homepage)
 def homepage():
-
+    pygame.mixer.music.load(r"Musicas\song1.wav")
+    pygame.mixer.music.play(-1)
     # Carregar a imagem de fundo
 
     background_image = pygame.image.load(r'Imagens\wallpaper.jpg')
@@ -56,14 +57,14 @@ def homepage():
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
         # Desenhar botões e capturar retorno de ações
-        result = draw_button("Start", screen_width // 2 - 80, screen_height-800 , 150, 50, (66, 133, 244), action=interPage) #AQUI JOÃO
+        result = draw_button("Start", screen_width // 2 - 80, screen_height//2 - 200 , 150, 50, cores.PRETO, action=interPage) #AQUI JOÃO
         if result is not None:
             print(f"Transição para: {result}")  # Verifica qual valor foi retornado
             return result  # Se houver um valor retornado, ele será a nova tela a ser exibida
 
-        draw_button("Quit", screen_width // 2 - 80, screen_height-200, 150, 50, (66, 133, 244), action=quit_game)
+        draw_button("Quit", screen_width // 2 - 80, screen_height-200, 150, 50, cores.PRETO, action=quit_game)
 
-        # Gerenciar eventos
+        # Gerenciar eventos 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 quit_game()
@@ -169,27 +170,28 @@ def startPage(linhas):
 
                     else:
                         # Renderiza o número com fundo transparente
-                        text_surface = font_ntesouros.render(str(matriz_laco[i][j]), True, cores.AMARELO)
+                        text_surface = font_ntesouros.render(str(matriz_laco[i][j]), True, cores.PRETO)
                         text_rect = text_surface.get_rect(center=(x + lado_celula // 2, y + lado_celula // 2))
                         screen.blit(text_surface, text_rect)  # Coloca o texto na tela
 
                 # Desenhar o contorno do quadrado
-                pygame.draw.rect(screen, (0, 0, 0), (x, y, lado_celula, lado_celula), 2)
+                pygame.draw.rect(screen, cores.PRETO, (x, y, lado_celula, lado_celula), 2)
 
         # Exibir a pontuação na tela 
-        score_surface1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, cores.AMARELO)
-        screen.blit(score_surface1, (screen_width//10, screen_height//5))
+        exibir_pts_jg1 = font.render(f'Jogador 1: {pontuacao_jogador2}', True, cores.PRETO)
+        screen.blit(exibir_pts_jg1, (screen_width//25, screen_height//10))
 
-        score_surface2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, cores.AMARELO)
-        screen.blit(score_surface2, (screen_width//2+(screen_width//3), screen_height//5))
+        exibir_pts_jg2 = font.render(f'Jogador 2: {pontuacao_jogador1}', True, cores.PRETO)
+        screen.blit(exibir_pts_jg2, (screen_width//25 * 21, screen_height//10))
         pygame.display.update()
 
         # Verificar se todas as células foram abertas para finalizar o jogo
         todas_celulas_abertas = all(all(celulas_abertas[i][j] for j in range(linhas)) for i in range(linhas))
 
         if todas_celulas_abertas:
+            pygame.time.wait(1500)
             final(pontuacao_jogador1,pontuacao_jogador2,font_final)
-            
+            return
     pygame.display.update()
 
     pygame.quit()
@@ -223,24 +225,35 @@ def final(pontuacao_jogador1, pontuacao_jogador2, font_final):
     screen.blit(background_final, (0, 0))  # Exibir o background antes de qualquer outra coisa
 
     # Renderizar a mensagem de fim de jogo
-    mensagem_surface = font_final.render(mensagem, True, (255, 255, 255))
+    mensagem_surface = font_final.render(mensagem, True, cores.BRANCO)
     mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
     screen.blit(mensagem_surface, mensagem_rect)
 
     # Desenhar o botão "Jogar novamente"
-    draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//3) , 300, 75, cores.AMARELO, action=homepage)
+    #draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//3) , 300, 75, cores.AMARELO, action=homepage)
     pygame.display.update()  # Atualizar a tela para mostrar background, mensagem e botão
 
     #desenhar o botão "quit"
-    draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.AMARELO , action=quit_game)
+    #draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.AMARELO , action=quit_game)
     # Esperar por um evento de fechamento ou clique para sair
 
     esperando = True
     while esperando:
+         # Mostrar o background e a mensagem de fim de jogo
+        screen.blit(background_final, (0, 0))  # Exibir o background antes de qualquer outra coisa
+
+        # Renderizar a mensagem de fim de jogo
+        mensagem_surface = font_final.render(mensagem, True, cores.BRANCO)
+        mensagem_rect = mensagem_surface.get_rect(center=(screen_width // 2, screen_height // 2))
+        screen.blit(mensagem_surface, mensagem_rect)
+
+        draw_button("Quit", screen_width // 2 - 50, (screen_height * 2//3) , 100, 50, cores.PRETO , action=quit_game)
+        draw_button("Jogar novamente", screen_width // 2 - 150, (screen_height * 1//4) , 300, 75, cores.PRETO, action=homepage)
         for evento in pygame.event.get():
-            if evento.type == pygame.QUIT or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
+            if evento.type == pygame.QUIT: #or (evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1):
                 esperando = False
         pygame.display.update()
+        
 
 
 
@@ -300,7 +313,7 @@ def interPage():
     while rodando:
         screen.blit(background_image, (0, 0))  # Desenha a imagem de fundo
 
-        draw_button("Iniciar jogo", (screen_width //2)-150, (screen_height*2)//3 +50, 300, 50, (66, 133, 244), action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
+        draw_button("Iniciar jogo", (screen_width //2)-150, (screen_height*2)//3 +50, 300, 50, cores.PRETO, action=lambda: startPage(int(linhas)))  # Converter 'linhas' para inteiro
         draw_text_with_border("Digite a quantidade de linhas para o tabuleiro!", "JetBrains-Mono", (255,255,255), (0,0,0), ((screen_width//2)-325, (screen_height//2-50)))
         draw_input_box((screen_width // 2)-150, (screen_height//2), 300, 50, str(linhas))
 
